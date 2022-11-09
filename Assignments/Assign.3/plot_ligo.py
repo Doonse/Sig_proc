@@ -23,7 +23,7 @@ h1_name,h1_start_time,h1_strain=read_data(join(path, "H-H1_LOSC_4_V2-1126259446-
 # read livingston measurement
 l1_name,l1_start_time,l1_strain=read_data(join(path, "L-L1_LOSC_4_V2-1126259446-32.hdf5"))
     
-# global variables
+# global variables used in multiple functions
 fs = 4096 # sampling frequency
 samples_per_signal = len(h1_strain)
 sec_per_signal = len(h1_strain)/fs
@@ -148,7 +148,7 @@ def prob4():
     return
 
 def prob5():
-    # b
+
     xhat_h = h1_strain * window_w
     xhat_l = l1_strain * window_w
 
@@ -161,21 +161,54 @@ def prob5():
     y_h = np.fft.ifft(yhat_h)
     y_l = np.fft.ifft(yhat_l)
 
+    # H1
     plt.plot(t,y_h)
     plt.xlabel("Time (s)")
     plt.ylabel("Strain")
     plt.show()
 
+    # L1
     plt.plot(t,y_l)
     plt.xlabel("Time (s)")
     plt.ylabel("Strain")
     plt.show()
 
-    # c
+    # zoomed in to the gravitational wave signal location
+    plt.plot(t,y_h)
+    plt.plot(t,y_l)
+    plt.xlabel("Time (s)")
+    plt.ylabel("Strain")
+    plt.xlim(16.2, 16.5)
+    plt.show()
+    
+
+    return
+
+def prob6():
+    # low pass filter
+    f = np.linspace(-np.pi, np.pi, 1000)
+
+    # convert to hertz
+    f_hz = f * fs / (2*np.pi)
+
+    # frequency response
+    fr = np.zeros(len(f))
+
+    L = 8
+    for i in range(0, L):
+        fr = fr + (1/L) * np.exp(-1j * f * i)
+
+    plt.plot(f_hz, 10*np.log10(np.abs(fr)**2))
+    plt.xlabel("Frequency (Hz)")
+    plt.ylabel("Power (dB)")
+    plt.axvline(x=300, color='k', linestyle='--') 
+    plt.axhline(y=-6, color='k', linestyle='--')
+    plt.show()
 
 
     return
 
-prob5()
+prob6()
+
 
 
